@@ -1,0 +1,19 @@
+package polytech.spbstu;
+
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+
+@EnableJpaRepositories(basePackages = "polytech.spbstu.repos")
+@EnableAspectJAutoProxy
+@EntityScan("polytech.spbstu.entity")
+@SpringBootApplication
+public class Application extends SpringBootServletInitializer {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+}

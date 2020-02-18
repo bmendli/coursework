@@ -2,7 +2,6 @@ package polytech.spbstu.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,7 +14,7 @@ import polytech.spbstu.entity.WardsEntity;
 import polytech.spbstu.repos.WardRepository;
 import polytech.spbstu.utils.ValidationUtils;
 
-import javax.validation.constraints.NotNull;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,7 +37,7 @@ public class WardsController {
 
     @PostMapping(value = "/add", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public String addWard(@RequestBody WardsEntity wardsEntity) {
+    public String addWard(@RequestBody final WardsEntity wardsEntity) {
         if (ValidationUtils.valid(wardsEntity)) {
             wardRepository.save(wardsEntity);
             return WARD_ADDED;
@@ -47,8 +46,11 @@ public class WardsController {
     }
 
     @GetMapping(value = "/get", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<WardsEntity> getWards() {
-        return wardRepository.findAll();
+    public List<WardsEntity> getWard(@RequestParam(value = "id", required = false) final Integer id) {
+        if (id == null || id <= 0) {
+            return wardRepository.findAll();
+        }
+        return Collections.singletonList(wardRepository.findById(id).orElse(null));
     }
 
     @PostMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)

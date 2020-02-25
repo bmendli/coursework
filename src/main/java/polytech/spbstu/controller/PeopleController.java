@@ -34,12 +34,16 @@ class PeopleController {
     private static final String PEOPLE_NOT_UPDATED_EMPTY = "People cannot update because he has incorrect params";
     private static final String PEOPLE_NOT_UPDATED_NOT_EXIST = "People cannot update because he doesn't exist";
 
+    private final PeopleRepository peopleRepository;
+    private final WardRepository wardRepository;
+    private final DiagnosisRepository diagnosisRepository;
+
     @Autowired
-    private PeopleRepository peopleRepository;
-    @Autowired
-    private WardRepository wardRepository;
-    @Autowired
-    private DiagnosisRepository diagnosisRepository;
+    public PeopleController(PeopleRepository peopleRepository, WardRepository wardRepository, DiagnosisRepository diagnosisRepository) {
+        this.peopleRepository = peopleRepository;
+        this.wardRepository = wardRepository;
+        this.diagnosisRepository = diagnosisRepository;
+    }
 
     @PostMapping(value = "/add", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody

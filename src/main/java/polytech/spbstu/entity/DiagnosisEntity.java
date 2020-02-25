@@ -53,6 +53,6 @@ public class DiagnosisEntity {
         return Objects.hash(id, name);
     }
 
-    @OneToMany( cascade = CascadeType.ALL, mappedBy = "diagnosisByDiagnosisId")
+    @OneToMany(targetEntity = PeopleEntity.class, cascade = CascadeType.ALL, mappedBy = "diagnosisByDiagnosisId")
     private List<PeopleEntity> peopleEntities;
 }

@@ -32,8 +32,12 @@ public class DiagnosisController {
     private static final String DIAGNOSIS_NOT_UPDATED_EMPTY = "Diagnosis cannot update because he has incorrect params";
     private static final String DIAGNOSIS_NOT_UPDATED_NOT_EXIST = "Diagnosis cannot update because he doesn't exist";
 
+    private final DiagnosisRepository diagnosisRepository;
+
     @Autowired
-    private DiagnosisRepository diagnosisRepository;
+    public DiagnosisController(DiagnosisRepository diagnosisRepository) {
+        this.diagnosisRepository = diagnosisRepository;
+    }
 
     @PostMapping(value = "/add", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody

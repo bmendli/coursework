@@ -32,8 +32,12 @@ public class WardsController {
     private static final String WARD_NOT_UPDATED_EMPTY = "Ward cannot update because he has incorrect params";
     private static final String WARD_NOT_UPDATED_NOT_EXIST = "Ward cannot update because he doesn't exist";
 
+    private final WardRepository wardRepository;
+
     @Autowired
-    private WardRepository wardRepository;
+    public WardsController(WardRepository wardRepository) {
+        this.wardRepository = wardRepository;
+    }
 
     @PostMapping(value = "/add", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody

@@ -65,6 +65,6 @@ public class WardsEntity {
         return Objects.hash(id, name, maxCount);
     }
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "wardsByWardId")
+    @OneToMany(targetEntity = PeopleEntity.class, cascade = CascadeType.ALL, mappedBy = "wardsByWardId")
     private List<PeopleEntity> peopleEntities;
 }

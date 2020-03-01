@@ -29,7 +29,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserEntity register(UserEntity userEntity) {
-        RoleEntity roleEntity = roleRepository.findByName("USER");
+        RoleEntity roleEntity = roleRepository.findByName("ROLE_USER");
         List<RoleEntity> roles = List.of(roleEntity);
         userEntity.setPassword(encoder.encode(userEntity.getPassword()));
         userEntity.setRoleEntities(roles);

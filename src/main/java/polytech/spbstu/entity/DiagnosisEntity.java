@@ -53,6 +53,15 @@ public class DiagnosisEntity {
         return Objects.hash(id, name);
     }
 
+    @Override
+    public String toString() {
+        return "DiagnosisEntity{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", peopleEntities=" + peopleEntities +
+                '}';
+    }
+
     @OneToMany(targetEntity = PeopleEntity.class, cascade = CascadeType.ALL, mappedBy = "diagnosisByDiagnosisId")
     private List<PeopleEntity> peopleEntities;
 }

@@ -1,6 +1,7 @@
 package polytech.spbstu.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,6 +21,7 @@ import polytech.spbstu.service.UserService;
 import java.util.HashMap;
 import java.util.Map;
 
+@SpringBootApplication(scanBasePackages = {"polytech.spbstu.repos", "polytech.spbstu.entity"})
 @RestController
 @RequestMapping(value = "/polyclinic/spbstu/auth")
 public class AuthenticationRestController {

@@ -77,7 +77,19 @@ public class PeopleEntity {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstName, lastName, fatherName);
+        return Objects.hash(id, firstName, lastName, fatherName, diagnosisByDiagnosisId, wardsByWardId);
+    }
+
+    @Override
+    public String toString() {
+        return "PeopleEntity{" +
+                "id=" + id +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", fatherName='" + fatherName + '\'' +
+                ", diagnosisByDiagnosisId=" + diagnosisByDiagnosisId +
+                ", wardsByWardId=" + wardsByWardId +
+                '}';
     }
 
     @ManyToOne

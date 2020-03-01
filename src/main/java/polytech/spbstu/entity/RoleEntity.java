@@ -7,6 +7,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -14,14 +16,15 @@ import java.util.Set;
 public class RoleEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     private long id;
 
     @Column(name = "name")
     private String name;
 
     @ManyToMany(mappedBy = "roles")
-    private Set<UserEntity> userEntities;
+    private List<UserEntity> userEntities;
 
     public RoleEntity() {
     }
@@ -42,12 +45,27 @@ public class RoleEntity {
         this.name = name;
     }
 
-    public Set<UserEntity> getUserEntities() {
+    public List<UserEntity> getUserEntities() {
         return userEntities;
     }
 
-    public void setUserEntities(Set<UserEntity> userEntities) {
+    public void setUserEntities(List<UserEntity> userEntities) {
         this.userEntities = userEntities;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RoleEntity that = (RoleEntity) o;
+        return id == that.id
+                && name.equals(that.name)
+                && userEntities.equals(that.userEntities);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, userEntities);
     }
 
     @Override

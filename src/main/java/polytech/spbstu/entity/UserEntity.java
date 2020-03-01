@@ -11,13 +11,15 @@ import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "security")
 public class UserEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     private long id;
 
     @Column(name = "username")
@@ -75,5 +77,33 @@ public class UserEntity {
 
     public void setRoleEntities(List<RoleEntity> roleEntities) {
         this.roles = roleEntities;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserEntity that = (UserEntity) o;
+        return id == that.id
+                && username.equals(that.username)
+                && password.equals(that.password)
+                && confirmPassword.equals(that.confirmPassword)
+                && roles.equals(that.roles);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, username, password, confirmPassword, roles);
+    }
+
+    @Override
+    public String toString() {
+        return "UserEntity{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", confirmPassword='" + confirmPassword + '\'' +
+                ", roles=" + roles +
+                '}';
     }
 }

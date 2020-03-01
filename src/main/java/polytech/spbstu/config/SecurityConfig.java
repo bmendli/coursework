@@ -14,7 +14,8 @@ import polytech.spbstu.security.JwtTokenProvider;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private static final String ADMIN_ENDPOINT = "/polyclinic/spbstu/admin/**";
-    private static final String LOGIN_ENDPOINT = "/polyclinic/spbstu/auth/login";
+    private static final String LOGIN_ENDPOINT = "/polyclinic/spbstu/auth/**";
+    private static final String REGISTRATION_ENDPOINT = "/polyclinic/spbstu/users/**";
 
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -38,6 +39,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers(LOGIN_ENDPOINT).permitAll()
+                .antMatchers(REGISTRATION_ENDPOINT).permitAll()
                 .antMatchers(ADMIN_ENDPOINT).hasRole("ADMIN")
                 .anyRequest().authenticated()
                 .and()

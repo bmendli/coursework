@@ -1,6 +1,7 @@
 package polytech.spbstu.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +12,7 @@ import polytech.spbstu.dto.UserDto;
 import polytech.spbstu.entity.UserEntity;
 import polytech.spbstu.service.UserService;
 
+@SpringBootApplication(scanBasePackages = {"polytech.spbstu.repos", "polytech.spbstu.entity"})
 @RestController
 @RequestMapping("/polyclinic/spbstu/admin/")
 public class AdminRestController {

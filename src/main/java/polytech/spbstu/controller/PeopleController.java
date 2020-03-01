@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Optional;
 
 @SpringBootApplication(scanBasePackages = {"polytech.spbstu.repos", "polytech.spbstu.entity"})
-
 @RestController
 @RequestMapping("/polyclinic/spbstu/people")
 class PeopleController {

@@ -1,5 +1,6 @@
 package polytech.spbstu.entity;
 
+import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
 

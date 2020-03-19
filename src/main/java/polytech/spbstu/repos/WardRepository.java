@@ -6,4 +6,6 @@ import polytech.spbstu.entity.WardsEntity;
 
 @Repository
 public interface WardRepository extends JpaRepository<WardsEntity, Integer> {
+
+    WardsEntity findWardsEntitiesByName(String name);
 }

@@ -10,7 +10,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import polytech.spbstu.dto.ResultDto;
+import polytech.spbstu.entity.DiagnosisEntity;
 import polytech.spbstu.entity.PeopleEntity;
+import polytech.spbstu.entity.WardsEntity;
 import polytech.spbstu.repos.DiagnosisRepository;
 import polytech.spbstu.repos.PeopleRepository;
 import polytech.spbstu.repos.WardRepository;
@@ -22,7 +25,7 @@ import java.util.Optional;
 
 @SpringBootApplication(scanBasePackages = {"polytech.spbstu.repos", "polytech.spbstu.entity"})
 @RestController
-@RequestMapping("/polyclinic/spbstu/people")
+@RequestMapping("/polyclinic/spbstu/users/people")
 class PeopleController {
 
     private static final String PEOPLE_ADDED = "People successfully added";
@@ -38,20 +41,50 @@ class PeopleController {
     private final DiagnosisRepository diagnosisRepository;
 
     @Autowired
-    public PeopleController(PeopleRepository peopleRepository, WardRepository wardRepository, DiagnosisRepository diagnosisRepository) {
+    public PeopleController(PeopleRepository peopleRepository,
+                            WardRepository wardRepository,
+                            DiagnosisRepository diagnosisRepository) {
         this.peopleRepository = peopleRepository;
         this.wardRepository = wardRepository;
         this.diagnosisRepository = diagnosisRepository;
     }
 
+    @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<PeopleEntity> getAllPeople() {
+        return peopleRepository.findAll();
+    }
+
     @PostMapping(value = "/add", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public String addPeople(@RequestBody final PeopleEntity peopleEntity) {
-        if (ValidationUtils.valid(peopleEntity)) {
-            peopleRepository.save(peopleEntity);
-            return PEOPLE_ADDED;
+    public ResultDto addPeople(@RequestBody final PeopleEntity peopleEntity) {
+        ResultDto resultDto = new ResultDto();
+        final String diagnosisName = peopleEntity.getDiagnosisByDiagnosisId().getName();
+        final String wardName = peopleEntity.getWardsByWardId().getName();
+        DiagnosisEntity diagnosisEntity = diagnosisRepository.findDiagnosisEntityByName(diagnosisName);
+        WardsEntity wardsEntity = wardRepository.findWardsEntitiesByName(wardName);
+        
+        if (diagnosisEntity == null) {
+            final DiagnosisEntity newDiagnosis = new DiagnosisEntity();
+            newDiagnosis.setName(diagnosisName);
+            diagnosisEntity = diagnosisRepository.save(newDiagnosis);
         }
-        return PEOPLE_NOT_ADDED;
+
+        if (wardsEntity == null) {
+            final WardsEntity newWard = new WardsEntity();
+            newWard.setName(wardName);
+            newWard.setMaxCount(5);
+            wardsEntity = wardRepository.save(newWard);
+        }
+
+        if (ValidationUtils.haveSpot(wardsEntity, peopleRepository.findPeopleEntitiesByWardsByWardId(wardsEntity))) {
+            peopleEntity.setWardsByWardId(wardsEntity);
+            peopleEntity.setDiagnosisByDiagnosisId(diagnosisEntity);
+            peopleRepository.save(peopleEntity);
+            resultDto.setResult(true);
+        } else {
+            resultDto.setResult(false);
+        }
+        return resultDto;
     }
 
     @GetMapping(value = "/get", produces = MediaType.APPLICATION_JSON_VALUE)

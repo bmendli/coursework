@@ -1,5 +1,8 @@
 package polytech.spbstu.controller;
 
+import java.util.Base64;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.HttpStatus;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import polytech.spbstu.dto.ResultDto;
 import polytech.spbstu.dto.UserDto;
 import polytech.spbstu.entity.UserEntity;
 import polytech.spbstu.service.SecurityService;
@@ -29,6 +33,8 @@ public class UserRestController {
     private final SecurityService securityService;
 
     private final UserValidator validator;
+
+    private final Base64.Decoder decoder = Base64.getDecoder();
 
     @Autowired
     public UserRestController(UserService userService, SecurityService securityService, UserValidator validator) {
@@ -55,39 +61,49 @@ public class UserRestController {
     }
 
     @PostMapping(value = "registration", produces = MediaType.APPLICATION_JSON_VALUE)
-    public String registration(@RequestBody UserEntity userEntity,
-                               BindingResult bindingResult, Model model, Error error) {
+    public ResponseEntity<ResultDto> registration(@RequestBody UserEntity userEntity,
+                                                  BindingResult bindingResult, Model model, Error error) {
         validator.validate(userEntity, bindingResult);
+        ResultDto resultDto = new ResultDto();
 
         if (bindingResult.hasErrors()) {
-            return "registration";
+            resultDto.setResult(false);
+            return new ResponseEntity<>(resultDto, HttpStatus.CONFLICT);
         }
 
         userService.register(userEntity);
         securityService.autoLogin(userEntity.getUsername(), userEntity.getPassword());
-        return "redirect:/welcome";
+        resultDto.setResult(true);
+        return new ResponseEntity<>(resultDto, HttpStatus.OK);
     }
 
-    @GetMapping(value = "login")
-    public String login(Model model, String error, String logout) {
-        if (error != null) {
+    @PostMapping(value = "login")
+    public ResponseEntity<ResultDto> login(@RequestBody UserEntity userEntity,
+                                           Model model, String error, String logout) {
+        final UserEntity user = userService.findByUsername(userEntity.getUsername());
+        ResultDto resultDto = new ResultDto();
+        resultDto.setResult(false);
+        HttpStatus status = HttpStatus.UNAUTHORIZED;
+        if (UserValidator.isEmpty(user) || !UserValidator.matchPassword(userEntity.getPassword(), user.getPassword())) {
+            model.addAttribute("login", "User doesn't exist");
+        } else if (error != null) {
             model.addAttribute("error", "Username of password is incorrect");
-        }
-
-        if (logout != null) {
+        } else if (logout != null) {
             model.addAttribute("logout", "Logged out successfully");
+        } else {
+            resultDto.setResult(true);
+            status = HttpStatus.OK;
         }
 
-        return "login";
+        return new ResponseEntity<>(resultDto, status);
     }
 
-    @GetMapping(value = {"", "welocme"})
-    public String welcome(Model model) {
-        return "welcome";
-    }
-
-    @GetMapping(value = "admin")
-    public String admin(Model model) {
-        return "admin";
+    @GetMapping(value = "")
+    public ResponseEntity<List<UserDto>> getUsers() {
+        return new ResponseEntity<>(userService
+                .getAll()
+                .stream()
+                .map(UserDto::fromUser)
+                .collect(Collectors.toList()), HttpStatus.OK);
     }
 }

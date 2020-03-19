@@ -1,5 +1,6 @@
 package polytech.spbstu.controller;
 
+import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.MediaType;
@@ -10,7 +11,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import polytech.spbstu.dto.WardDto;
+import polytech.spbstu.entity.PeopleEntity;
 import polytech.spbstu.entity.WardsEntity;
+import polytech.spbstu.repos.PeopleRepository;
 import polytech.spbstu.repos.WardRepository;
 import polytech.spbstu.utils.ValidationUtils;
 
@@ -20,7 +24,7 @@ import java.util.Optional;
 
 @SpringBootApplication(scanBasePackages = {"polytech.spbstu.repos", "polytech.spbstu.entity"})
 @RestController
-@RequestMapping("/polyclinic/spbstu/ward")
+@RequestMapping("/polyclinic/spbstu/users/ward")
 public class WardsController {
 
     private static final String WARD_ADDED = "Ward successfully added";
@@ -32,10 +36,13 @@ public class WardsController {
     private static final String WARD_NOT_UPDATED_NOT_EXIST = "Ward cannot update because he doesn't exist";
 
     private final WardRepository wardRepository;
+    private final PeopleRepository peopleRepository;
 
     @Autowired
-    public WardsController(WardRepository wardRepository) {
+    public WardsController(WardRepository wardRepository,
+                           PeopleRepository peopleRepository) {
         this.wardRepository = wardRepository;
+        this.peopleRepository = peopleRepository;
     }
 
     @PostMapping(value = "/add", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -46,6 +53,19 @@ public class WardsController {
             return WARD_ADDED;
         }
         return WARD_NOT_ADDED;
+    }
+
+    @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<WardDto> getAllWards() {
+        final List<WardsEntity> all = wardRepository.findAll();
+        List<WardDto> wardDtoList = new ArrayList<>();
+        all.forEach(ward -> {
+            final List<PeopleEntity> peopleEntity = peopleRepository.findPeopleEntitiesByWardsByWardId(ward);
+            WardDto wardDto = WardDto.fromWard(ward);
+            wardDto.setPeopleEntities(peopleEntity);
+            wardDtoList.add(wardDto);
+        });
+        return wardDtoList;
     }
 
     @GetMapping(value = "/get", produces = MediaType.APPLICATION_JSON_VALUE)

@@ -6,4 +6,6 @@ import polytech.spbstu.entity.DiagnosisEntity;
 
 @Repository
 public interface DiagnosisRepository extends JpaRepository<DiagnosisEntity, Integer> {
+
+    DiagnosisEntity findDiagnosisEntityByName(String name);
 }

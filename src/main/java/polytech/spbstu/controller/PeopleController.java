@@ -2,7 +2,9 @@ package polytech.spbstu.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -55,8 +57,8 @@ class PeopleController {
     }
 
     @PostMapping(value = "/add", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResultDto addPeople(@RequestBody final PeopleEntity peopleEntity) {
+    public ResponseEntity<ResultDto> addPeople(@RequestBody final PeopleEntity peopleEntity) {
+        HttpStatus status = HttpStatus.OK;
         ResultDto resultDto = new ResultDto();
         final String diagnosisName = peopleEntity.getDiagnosisByDiagnosisId().getName();
         final String wardName = peopleEntity.getWardsByWardId().getName();
@@ -83,8 +85,9 @@ class PeopleController {
             resultDto.setResult(true);
         } else {
             resultDto.setResult(false);
+            status = HttpStatus.CONFLICT;
         }
-        return resultDto;
+        return new ResponseEntity<>(resultDto, status);
     }
 
     @GetMapping(value = "/get", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -96,23 +99,8 @@ class PeopleController {
     }
 
     @PostMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public String updatePeople(@RequestBody final PeopleEntity peopleEntity) {
-        if (ValidationUtils.valid(peopleEntity)) {
-            final Optional<PeopleEntity> peopleOptional = peopleRepository.findById(peopleEntity.getId());
-            if (peopleOptional.isPresent()) {
-                final PeopleEntity people = peopleOptional.get();
-                people.setFirstName(people.getFirstName());
-                people.setLastName(people.getLastName());
-                people.setFatherName(people.getFatherName());
-                people.setWardsByWardId(people.getWardsByWardId());
-                people.setDiagnosisByDiagnosisId(people.getDiagnosisByDiagnosisId());
-                peopleRepository.flush();
-                return PEOPLE_UPDATED;
-            }
-            return PEOPLE_NOT_UPDATED_NOT_EXIST;
-        }
-        return PEOPLE_NOT_UPDATED_EMPTY;
+    public ResponseEntity<ResultDto> updatePeople(@RequestBody final PeopleEntity peopleEntity) {
+        return addPeople(peopleEntity);
     }
 
     @PostMapping(value = "/delete", produces = MediaType.APPLICATION_JSON_VALUE)

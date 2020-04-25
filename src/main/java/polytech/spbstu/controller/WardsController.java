@@ -3,10 +3,13 @@ package polytech.spbstu.controller;
 import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -27,14 +30,6 @@ import java.util.Optional;
 @RequestMapping("/polyclinic/spbstu/users/ward")
 public class WardsController {
 
-    private static final String WARD_ADDED = "Ward successfully added";
-    private static final String WARD_NOT_ADDED = "Ward cannot add";
-    private static final String WARD_DELETED = "Ward deleted";
-    private static final String WARD_NOT_DELETED = "Ward cannot delete";
-    private static final String WARD_UPDATED = "Ward updated";
-    private static final String WARD_NOT_UPDATED_EMPTY = "Ward cannot update because he has incorrect params";
-    private static final String WARD_NOT_UPDATED_NOT_EXIST = "Ward cannot update because he doesn't exist";
-
     private final WardRepository wardRepository;
     private final PeopleRepository peopleRepository;
 
@@ -47,12 +42,12 @@ public class WardsController {
 
     @PostMapping(value = "/add", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public String addWard(@RequestBody final WardsEntity wardsEntity) {
+    public ResponseEntity addWard(@ModelAttribute final WardsEntity wardsEntity) {
         if (ValidationUtils.valid(wardsEntity)) {
             wardRepository.save(wardsEntity);
-            return WARD_ADDED;
+            return new ResponseEntity<>(HttpStatus.OK);
         }
-        return WARD_NOT_ADDED;
+        return new ResponseEntity<>(HttpStatus.CONFLICT);
     }
 
     @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -76,9 +71,16 @@ public class WardsController {
         return Collections.singletonList(wardRepository.findById(id).orElse(null));
     }
 
+    @GetMapping(value = "get/{id}")
+    public ResponseEntity<WardDto> getWardById(@PathVariable("id") Integer id) {
+        final Optional<WardsEntity> wardOptional = wardRepository.findById(id);
+        return wardOptional.map(wardsEntity -> new ResponseEntity<>(WardDto.fromWard(wardsEntity), HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NO_CONTENT));
+    }
+
     @PostMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public String updateWard(@RequestBody final WardsEntity wardsEntity) {
+    public ResponseEntity<WardDto> updateWard(@ModelAttribute final WardsEntity wardsEntity) {
         if (ValidationUtils.valid(wardsEntity)) {
             final Optional<WardsEntity> wardOptional = wardRepository.findById(wardsEntity.getId());
             if (wardOptional.isPresent()) {
@@ -86,20 +88,26 @@ public class WardsController {
                 ward.setMaxCount(wardsEntity.getMaxCount());
                 ward.setName(wardsEntity.getName());
                 wardRepository.flush();
-                return WARD_UPDATED;
+                WardDto wardDto = WardDto.fromWard(ward);
+                return new ResponseEntity<>(wardDto, HttpStatus.OK);
             }
-            return WARD_NOT_UPDATED_NOT_EXIST;
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-        return WARD_NOT_UPDATED_EMPTY;
+        return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
     }
 
     @PostMapping(value = "/delete", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public String removeWard(@RequestBody final WardsEntity wardsEntity) {
+    public ResponseEntity removeWard(@ModelAttribute final WardsEntity wardsEntity) {
         if (ValidationUtils.valid(wardsEntity)) {
-            wardRepository.delete(wardsEntity);
-            return WARD_DELETED;
+            final WardsEntity ward = wardRepository.findWardsEntitiesByName(wardsEntity.getName());
+            if (ward == null) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            } else {
+                wardRepository.delete(wardsEntity);
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
         }
-        return WARD_NOT_DELETED;
+        return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
     }
 }

@@ -1,5 +1,6 @@
 package polytech.spbstu.utils;
 
+import java.util.List;
 import polytech.spbstu.entity.DiagnosisEntity;
 import polytech.spbstu.entity.PeopleEntity;
 import polytech.spbstu.entity.WardsEntity;
@@ -24,5 +25,9 @@ public class ValidationUtils {
                 || people.getFatherName().isBlank()
                 || !valid(people.getWardsByWardId())
                 || !valid(people.getDiagnosisByDiagnosisId()));
+    }
+
+    public static boolean haveSpot(WardsEntity wardsEntity, List<PeopleEntity> peopleEntities) {
+        return wardsEntity.getMaxCount() > peopleEntities.size();
     }
 }
